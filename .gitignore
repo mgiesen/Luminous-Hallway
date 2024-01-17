@@ -1,0 +1,10 @@
+.DS_Store
+node_modules
+package-lock.json
+program
+uploads
+secrets.h
+m_secrets.h
+prototype
+persist
+.vscode

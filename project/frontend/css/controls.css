@@ -1,0 +1,77 @@
+.slider {
+	-webkit-appearance: none;
+	border-radius: 8px;
+	height: 90px;
+	min-width: 200px;
+	margin: 0;
+	padding: 0;
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+.slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 60px;
+	height: 88px;
+	background-repeat: no-repeat;
+	background-color: #f0f0f0;
+	background-position: center center;
+	border-radius: 5px;
+	cursor: pointer;
+	margin: 0;
+	padding: 0;
+}
+
+#led_brightness::-webkit-slider-thumb {
+	background-image: url("../images/icons/brightness.svg");
+	background-size: 45%;
+}
+
+#btn_program_controls {
+	display: flex;
+	align-items: center;
+	justify-content: right;
+	gap: 10px;
+}
+
+.button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	height: 90px;
+	width: 120px;
+	border-radius: 8px;
+	background-size: 45%;
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-color: rgba(255, 255, 255, 0.2);
+	font-size: 40px;
+	font-weight: bold;
+	position: relative;
+	overflow: hidden;
+	margin: inherit;
+}
+
+.button:hover {
+	background-color: rgba(255, 255, 255, 0.3);
+}
+
+.button:active {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+.button img {
+	position: absolute;
+	display: block;
+	width: 55px;
+	aspect-ratio: 1 / 1;
+}
+
+#frame {
+	height: 90px;
+	width: 120px;
+	background-color: rgba(255, 255, 255, 0.4);
+	opacity: 0.5;
+	border-radius: 8px;
+}

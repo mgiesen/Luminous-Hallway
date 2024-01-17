@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Struts Light Manager</title>
+
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" type="text/css" href="css/controls.css">
+    <link rel="stylesheet" type="text/css" href="css/loader.css">
+
+    <script src="third/reconnecting-websocket.js" defer></script>
+</head>
+<body>
+    <div id="bodyLoader">
+        <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+        <p id="bodyLoaderText">Synchronisiere mit Treiber</p>
+    </div>
+
+    <div id="main">
+    
+        <div id="btn_program_controls">
+
+            <div style="flex-grow: 5"></div>
+
+            <input class="slider" id="led_brightness" style="flex-grow: 2;" type="range" min="1" max="255">
+            
+            <canvas id="frame"></canvas>
+
+            <div class="button" id="uploadButton" title="Neue Scene hochladen">
+                <img src="images/icons/upload.svg">
+            </div>
+
+            <div class="button" style="display: none" id="settingsButton" title="Einstellungen">
+                <img src="images/icons/settings.svg">
+            </div>
+
+            <div class="button" id="powerButton" title="Einstellungen">
+                <img src="images/icons/power.svg">
+            </div>
+
+        </div>
+    
+        <div id="room">
+            <div id="simulationBackground"></div>
+            <canvas id="simulation"></canvas>
+        </div>
+
+        <div id="settings" height="35px">
+          
+            <div class="disabled">
+                <img src="images/icons/connection.svg" style="height: 25px">
+                <span id="driver_connected_label" style="width: 60px"></span>
+            </div>
+
+            <div class="disabled">
+                <img src="images/icons/animation.svg" height="35px">
+                <span id="animation_runtime_label" style="width: 70px">00:00.000</span>
+            </div>
+
+            <div class="disabled">
+                <img src="images/icons/performance.svg" height="30px">
+                <span id="fps_label">0 fps</span>
+            </div>
+
+        </div>
+    </div>
+    <div style="display: flex; justify-content: center; opacity: 0.3">
+        <span>© Maximilian Giesen</span>
+    </div>
+
+    <script src="js/main.js" defer></script>
+    <script src="js/rendering.js" defer></script>
+    <script src="js/websocket.js" defer></script>
+</body>
+</html>
+           
