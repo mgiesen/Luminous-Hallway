@@ -64,6 +64,10 @@ Nachdem ich bei der Entwicklung viel Wert auf eine einfache Montage gelegt hatte
 
 Im letztem Feinschliff habe ich über das Backenend eine Apple HomeKit Schnittstelle emuliert, wodurch ich die Decke via Siri oder der Home-App auf einem Apple Gerät steuern kann. Somit ist ein Ein- und Ausschalten bequem genug, um die Decke auch im Alltag zu nutzen.
 
+## Finales Ergebnis im Video
+
+https://github.com/mgiesen/Luminous-Hallway/assets/29503989/a29f15e4-95d6-425e-8ec6-9e131010f37c
+
 ## Fazit
 
 Die Decke sieht beeindruckend aus und es macht Spaß Fotos und Videos zu identifizieren, die dem Flur wieder eine ganz eigene Note verleihen. Ich konnte zudem einige Skills auffrischen und neue Techniken erlernen.
