@@ -18,7 +18,7 @@ Diese sind lediglich lose auf zwei 10x10 mm Aluwinkel aufgelegt, welche wiederru
 
 Die Benutzeroberfläche ist Ergebnis einer HTML5 Webanwendung, die von einem Server im Heimnetzwerk gehostet wird. Dabei skaliert sich die Anwendung mit der Bildschirmgröße und kann somit auch auf mobilen Geräten angezeigt und genutzt werden. Ein weiteres technisches Highlight ist die Live-Synchronisation von Clients. So können sich im Heimnetzwerk mehrere Geräte zugleich mit dem Backend verbinden. Ändert zum Beispiel ein Anwender die Helligkeit, wird dieser Zustand in Echtzeit auf alle weiteren Geräte übertragen. Somit sind die physische Decke und das virtuelle Abbild auf allen Geräten stets synchronisiert.
 
-https://github.com/mgiesen/Strut-Light-Manager/assets/29503989/b7f5733e-244b-4c76-af37-1cdb07aedacd
+https://github.com/mgiesen/Luminous-Hallway/assets/29503989/0687be9d-3882-4a09-bc49-a3099147967d
 
 ## Backend
 
