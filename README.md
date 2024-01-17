@@ -22,7 +22,7 @@ https://github.com/mgiesen/Luminous-Hallway/assets/29503989/0687be9d-3882-4a09-b
 
 ## Backend
 
-Das Backend ist ein NodeJS Skript, welches auf meinem Heimserver läuft. Anstelle eines Heimservers kann jedoch auch ein einfacher Raspberry Pi verwendet werden. Wird vom Anwender ein Video hochgeladen, wird dieses zunächst mittels [ffmpeg]() in seine einzelnen Frames aufgeteilt und auf die relative Auflösung der Decke skaliert. Die Video-Frames bzw. das Einzelbild wird dann in ein Daten-Array überführt, welches über eine Schnittstelle an einen Mikrokontroller übertragen wird. Dieser übernimmt dann die Aufgabe der Ansteuerung der LEDs. Im Rahmen der Entwicklung habe ich mehrere Schnittstellen getestet und alle als Wahl-Option im Projekt erhalten, da es unterschiedliche Vor- und Nachteile je Anwendung gibt. Die im Projekt enthaltenden Schnittstellen sind:
+Das Backend ist ein NodeJS Skript, welches auf meinem Heimserver läuft. Anstelle eines Heimservers kann jedoch auch ein einfacher Raspberry Pi verwendet werden. Wird vom Anwender ein Video hochgeladen, wird dieses zunächst mittels [ffmpeg](https://ffmpeg.org) in seine einzelnen Frames aufgeteilt und auf die relative Auflösung der Decke skaliert. Die Video-Frames bzw. das Einzelbild wird dann in ein Daten-Array überführt, welches über eine Schnittstelle an einen Mikrokontroller übertragen wird. Dieser übernimmt dann die Aufgabe der Ansteuerung der LEDs. Im Rahmen der Entwicklung habe ich mehrere Schnittstellen getestet und alle als Wahl-Option im Projekt erhalten, da es unterschiedliche Vor- und Nachteile je Anwendung gibt. Die im Projekt enthaltenden Schnittstellen sind:
 
 - UDP
 - TCP/IP WebSockets
