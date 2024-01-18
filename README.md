@@ -66,7 +66,7 @@ Im letztem Feinschliff habe ich über das Backenend eine Apple HomeKit Schnittst
 
 ## Finales Ergebnis im Video
 
-https://github.com/mgiesen/Luminous-Hallway/assets/29503989/a29f15e4-95d6-425e-8ec6-9e131010f37c
+https://github.com/mgiesen/Luminous-Hallway/assets/29503989/7a764eb4-8cb4-48a4-9e3c-c0e4cb319569
 
 ## Fazit
 
