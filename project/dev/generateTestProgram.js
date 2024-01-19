@@ -1,7 +1,7 @@
 const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
-const config = require('../config.json');
+const config = require('./config.json');
 
 // Definition der Beispielbilder
 const images = [

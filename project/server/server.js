@@ -4,7 +4,7 @@ const path = require('path');
 
 const WebSocket = require('ws');
 
-const config = require('../config.json');
+const config = require('./config.json');
 const processor = require('./processor');
 const program = require('./program');
 const driverConnector = require('./driverConnector');

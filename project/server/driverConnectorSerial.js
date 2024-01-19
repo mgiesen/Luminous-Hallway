@@ -1,5 +1,5 @@
 const { SerialPort } = require('serialport');
-const config = require('../config.json');
+const config = require('./config.json');
 const EventEmitter = require('events');
 
 function rotateFrame(frame)

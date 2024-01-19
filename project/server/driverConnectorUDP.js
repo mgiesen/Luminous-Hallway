@@ -1,5 +1,5 @@
 const dgram = require('dgram');
-const config = require('../config.json');
+const config = require('./config.json');
 const EventEmitter = require('events');
 
 function transformMatrix(arr)

@@ -2,10 +2,11 @@ const EventEmitter = require('events');
 class Emitter extends EventEmitter { }
 const emitter = new Emitter();
 
-const sharp = require('sharp');
+const fs = require('fs');
 const { readdir } = require('fs').promises;
+const sharp = require('sharp');
 
-const config = require('../config.json');
+const config = require('./config.json');
 const driver = require('./driverConnector');
 
 class ProgramHandler
@@ -125,8 +126,17 @@ let programHandler = new ProgramHandler();
 
 async function load()
 {
+    // Überprüfen, ob der Ordner existiert. Wenn nicht, erstellen
+    const dir = './program';
+    if (!fs.existsSync(dir))
+    {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+
     // Liste aller Dateien im Ordner
     const files = await readdir('./program');
+
+    if (files.length == 0) return;
 
     // Reihenfolge sicherstellen
     files.sort((a, b) =>

@@ -1,6 +1,6 @@
 const ReconnectingWebSocket = require('reconnecting-websocket');
 const WebSocket = require('ws');
-const config = require('../config.json');
+const config = require('./config.json');
 const EventEmitter = require('events');
 
 
