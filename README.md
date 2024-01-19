@@ -75,3 +75,43 @@ Die Decke sieht beeindruckend aus und es macht Spaß Fotos und Videos zu identif
 ## Nachbau
 
 Für einen Nachbau des Projektes benötigt ihr neben den LEDs einen ESP8266 oder ESP32, sowie einen Computer, der NodeJS Skripte ausführen kann. Ich freue mich über Feedback oder die Weiterentwicklung des Repositorys. Solltet Ihr Fehler finden, erstellt gerne ein Issue oder sendet mir eine Nachricht.
+
+## Projektinstallation und Ausführung des Servers
+
+1. **Klonen des Repositories**  
+   Klone das Repository mit dem folgenden Befehl:  
+    `git clone https://github.com/mgiesen/Luminous-Hallway.git`
+
+1. **Wechseln in Projektverzeichnis**  
+   Wechsle in das Verzeichnis des geklonten Projekts:  
+    `cd Luminous-Hallway/project`
+
+1. **Konfiguration anpassen**  
+   Bearbeite die Konfigurationsdatei im server-Ordner:  
+   `./server/config.json`
+
+1. **Installieren der Abhängigkeiten**  
+   Installiere alle erforderlichen Pakete und Abhängigkeiten:  
+    `npm install`
+
+1. **Starten des Projekts**  
+   Starte den Server mit:  
+    `npm start`
+
+## Vorbereitung und Upload der Firmware
+
+1. **Passwortdatei m_secret.h anlegen**
+   Erstelle eine Datei `m_secret.h` im Verzeichnis `ledDriverFirmware` mit folgendem Inhalt:
+
+   ```
+   #define SECRET_SSID ""
+   #define SECRET_PASS ""
+   #define SECRET_OTA_PASSWORD ""
+   ```
+
+1. **Programmkonfiguration m_handler.h anpassen**  
+   Passe die Datei `m_handler.h` im ledDriverFirmware-Ordner auf deine Gegebenheiten an:
+   `./ledDriverFirmware/m_handler.h`
+
+1. **Quellcode auf MCU übertragen**  
+   Lade den Quellcode auf deine Mikrocontroller-Einheit
