@@ -60,9 +60,53 @@ Nachdem ich bei der Entwicklung viel Wert auf eine einfache Montage gelegt hatte
 
 ![](readme/pcb_soldering.png)
 
+## Transformation der Bilddaten auf die LEDs
+
+Um überhaupt Bilddaten mit einer hohen Wiederholrate auf eine LED Matrix zu übertragen, ist eine effiziente Verarbeitung der Daten von entscheidender Bedeutung. Zur Entlastung des verhältnismäßig langsamen Mikrocontrollers, übernimmt der Server die Vorverarbeitung der hochgeladenen Bilder bzw. Video-Frames.
+
+Die initiale Verarbeitung beinhaltet die Konvertierung des Bildes oder Video-Frames in einen standardisierten sRGB-Farbraum und das Speichern der Daten als Rohdaten (Buffer). Jeder Pixel wird durch seine RGB-Werte repräsentiert. Die Rohdaten folgen dem Row-Major-Format, d.h., die Pixel sind zeilenweise hintereinander im Array angeordnet.
+
+```javascript
+const imageBuffer = await sharp(`./program/${image}`).toColorspace("srgb").raw().toBuffer();
+```
+
+Die physische Anordnung der LEDs in unserer Installation erfordert eine spezielle Datenorganisation. Die LEDs sind in Spalten angeordnet und wechseln mit jedem Balken ihre Ausrichtung. Um diese Struktur abzubilden, muss das ursprünglich im Row-Major-Format vorliegende Array umsortiert (transformiert) werden.
+
+### Funktionsweise der Transformationsfunktion:
+
+- Ein neues Array result wird erstellt, um das umgeordnete Datenarray aufzunehmen.
+
+- Die Funktion iteriert über jede Spalte (col) und dann über jede Reihe (row).
+
+- Für gerade Spaltennummern (col % 2 === 0) wird die Reihenfolge der Reihen beibehalten, während sie für ungerade Spaltennummern umgekehrt wird ((rows - 1) - row), um die alternierende Anordnung der LEDs widerzuspiegeln.
+
+- Optional können die Spalten und Reihen gespiegelt werden. flip_x spiegelt die Pixelreihenfolge horizontal, während flip_y die Pixelreihenfolge vertikal spiegelt. Dies ist nützlich um die Darstellungsart der Benutzeroberfläche zu übernehmen. Die Notwendigkeit des spiegelns hängt davon ab, an welcher Stelle man die Datenleitung an den LED Balken anschließt.
+
+- Jeder Pixel besteht aus drei Werten (Rot, Grün, Blau), daher wird eine innere Schleife verwendet, um diese drei Werte für jeden Pixel aus dem ursprünglichen Array zu extrahieren und in das neue Array result einzufügen.
+
+```javascript
+function transformMatrix(arr, rows, cols, flip_x, flip_y) {
+	const result = new Uint8Array(rows * cols * 3);
+	for (let col = 0; col < cols; col++) {
+		for (let row = 0; row < rows; row++) {
+			let sourceCol = flip_x ? cols - 1 - col : col;
+			let alternateRow = sourceCol % 2 === 0 ? row : rows - 1 - row;
+			let sourceRow = flip_y ? rows - 1 - alternateRow : alternateRow;
+
+			for (let i = 0; i < 3; i++) {
+				result[(col * rows + row) * 3 + i] = arr[(sourceRow * cols + sourceCol) * 3 + i];
+			}
+		}
+	}
+	return result;
+}
+```
+
+Mit dem Upload der Bild- oder Videodaten erfolgt somit die Datenaufbereitung für die FastLED Library, sodass die hierfür erforderliche Matrix an den Mikrocontroller übertragen wird. Je nach Schnittstelle variiert die mögliche maximale Bildwiederholrate.
+
 ## Apple HomeKit
 
-Im letztem Feinschliff habe ich über das Backenend eine Apple HomeKit Schnittstelle emuliert, wodurch ich die Decke via Siri oder der Home-App auf einem Apple Gerät steuern kann. Somit ist ein Ein- und Ausschalten bequem genug, um die Decke auch im Alltag zu nutzen.
+Im letztem Feinschliff habe ich über das Backend eine Apple HomeKit Schnittstelle emuliert, wodurch ich die Decke via Siri oder der Home-App auf einem Apple Gerät steuern kann. Somit ist ein Ein- und Ausschalten bequem genug, um die Decke auch im Alltag zu nutzen.
 
 ## Finales Ergebnis im Video
 
