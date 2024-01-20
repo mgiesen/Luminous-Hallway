@@ -1,23 +1,7 @@
 const { SerialPort } = require('serialport');
 const config = require('./config.json');
 const EventEmitter = require('events');
-
-function rotateFrame(frame)
-{
-    const w = config.animation.frameSize.width;
-    const h = config.animation.frameSize.height;
-
-    const rotatedFrame = [];
-    for (let x = 0; x < w; x++)
-    {
-        for (let y = 0; y < h; y++)
-        {
-            let originalIndex = (y * w + x) * 3;
-            rotatedFrame.push(frame[originalIndex], frame[originalIndex + 1], frame[originalIndex + 2]);
-        }
-    }
-    return rotatedFrame;
-}
+const transformMatrix = require('./transformMatrix');
 
 class DriverConnector extends EventEmitter
 {
@@ -39,7 +23,7 @@ class DriverConnector extends EventEmitter
             if (this.port && this.port.isOpen)
             {
                 this.port.write('[');
-                this.port.write(rotateFrame(frame));
+                this.port.write(transformMatrix(frame));
                 this.port.write(']');
 
                 // Hinweis: Hier besteht ein ungelöster Fehler. Ein blauer, roter, grüner, weißer oder auch weiß-roter Frame werden problemlos übertragen
