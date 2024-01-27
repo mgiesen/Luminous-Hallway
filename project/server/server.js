@@ -1,5 +1,6 @@
 const express = require('express');
 const multer = require('multer');
+const { exec } = require('child_process');
 const path = require('path');
 
 const WebSocket = require('ws');
@@ -81,6 +82,34 @@ app.post('/upload', upload.single('file'), uploadErrorHandler, async (req, res) 
     sendStateUpdate();
 
     return res.status(200).send('Datei wurde erfolgreich verarbeitet');
+});
+
+app.get('/update', (req, res) =>
+{
+    console.log("Update wurde angefordert");
+
+    // Führe git pull im Root-Verzeichnis des Projekts aus
+    exec('git pull', { cwd: path.join(__dirname, '..', '..') }, (error, stdout, stderr) =>
+    {
+        if (error)
+        {
+            console.error(`Update Fehler: ${error.message}`);
+            return res.status(500).send('Update fehlgeschlagen');
+        }
+        console.log('Update erfolgreich: ', stdout);
+
+        // Antwort vor dem Beenden senden
+        res.send('Server wurde aktualisiert und wird direkt neu gestartet...');
+
+        console.log("Hallo");
+        // Kurze Verzögerung, um sicherzustellen, dass die Antwort gesendet wird
+        setTimeout(() =>
+        {
+            console.log('Server wird beendet. PM2 wird den Neustart durchführen.');
+            process.exit(0);
+        }, 1000);
+
+    });
 });
 
 // Start the server

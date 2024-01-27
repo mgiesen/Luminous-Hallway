@@ -126,6 +126,13 @@ Für einen Nachbau des Projektes benötigt ihr neben den LEDs einen ESP8266 oder
    Klone das Repository mit dem folgenden Befehl:  
     `git clone https://github.com/mgiesen/Luminous-Hallway.git`
 
+1. **PM2 installieren**  
+   Bevor du den Luminous-Hallway Server startest, stelle sicher, dass PM2 global auf deinem System installiert ist. PM2 ist ein Prozessmanager für Node.js-Anwendungen, der hilft, deine Anwendung dauerhaft am Laufen zu halten, sie automatisch neu zu starten, falls sie abstürzt, und ermöglicht das einfache Verwalten der Anwendungslogs:  
+    `npm install pm2 -g`
+
+   Mit folgendem Befehl prüfst du, ob die Installation geklappt hat:  
+   `pm2 --version`
+
 1. **Wechseln in Projektverzeichnis**  
    Wechsle in das Verzeichnis des geklonten Projekts:  
     `cd Luminous-Hallway/project`
@@ -141,6 +148,13 @@ Für einen Nachbau des Projektes benötigt ihr neben den LEDs einen ESP8266 oder
 1. **Starten des Projekts**  
    Starte den Server mit:  
     `npm start`
+
+1. **Stoppen des Projekts**  
+   Stoppe den Server mit:  
+    `npm stop`
+
+   Du kannst zudem mit folgendem Befehl alle pm2 Node Instanzen anzeigen und gezielt verwalten:  
+   `pm2 list`
 
 ## Vorbereitung und Upload der Firmware
 
