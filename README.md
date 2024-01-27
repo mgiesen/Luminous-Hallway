@@ -138,7 +138,7 @@ Für einen Nachbau des Projektes benötigt ihr neben den LEDs einen ESP8266 oder
     `cd Luminous-Hallway/project`
 
 1. **Konfiguration anpassen**  
-   Bearbeite die Konfigurationsdatei im server-Ordner:  
+   Passe die Konfigurationsdatei entsprechend deiner Systemumgebung im server-Ordner an:  
    `./server/config.json`
 
 1. **Installieren der Abhängigkeiten**  
