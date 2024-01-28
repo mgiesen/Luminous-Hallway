@@ -76,7 +76,9 @@ document.getElementById('updateBtn').addEventListener('click', function ()
         {
             response.text().then(data =>
             {
-                alert(data);
+                alert("Update erfolgreich. Server wird neu gestartet.");
+
+                window.location.reload();
             });
         } else
         {
