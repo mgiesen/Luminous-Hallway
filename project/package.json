@@ -14,6 +14,7 @@
 	"scripts": {
 		"prestart": "pm2 delete Luminous-Hallway || exit 0",
 		"start": "pm2 start ./server/server.js --name Luminous-Hallway",
-		"stop": "pm2 delete Luminous-Hallway"
+		"stop": "pm2 delete Luminous-Hallway",
+		"restart": "pm2 restart Luminous-Hallway"
 	}
 }
