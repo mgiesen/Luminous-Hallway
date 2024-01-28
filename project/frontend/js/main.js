@@ -65,6 +65,25 @@ function uploadFile()
     fileInput.remove();
 }
 
+// Event-Listener für den Update-Button
+document.getElementById('updateBtn').addEventListener('click', function ()
+{
+    fetch(`/update`, {
+        method: 'GET'
+    }).then(response =>
+    {
+        if (response.status === 200)
+        {
+            response.text().then(data =>
+            {
+                alert(data);
+            });
+        } else
+        {
+            alert("Update fehlgeschlagen");
+        }
+    }).catch(error => console.error('Fehler:', error));
+});
 
 // Event-Listener für den Upload-Button
 document.getElementById('uploadButton').addEventListener('click', function ()
