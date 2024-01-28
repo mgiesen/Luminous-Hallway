@@ -118,7 +118,11 @@ class ProgramHandler
         }
 
         driver.sendCommand('turnOff');
-        emitter.emit('frameUpdate');
+
+        setTimeout(() =>
+        {
+            emitter.emit('frameUpdate');
+        }, 100);
     }
 }
 
