@@ -109,7 +109,7 @@ function renderSimulationScene(rgbaArray, enabled)
 }
 
 // Funktion zum Konvertieren von Millisekunden in Minuten und Sekunden
-function formatSecondsToMinutes(millis)
+function formatSecondsToMinutes(millis, show_milliseconds = false)
 {
     if (millis == null) return "00:00.000";
     const seconds = millis / 1000;
@@ -120,7 +120,20 @@ function formatSecondsToMinutes(millis)
     const formattedSeconds = String(remainingSeconds).padStart(2, '0');
     const formattedMilliseconds = String(milliseconds).padStart(3, '0');
 
-    return `${formattedMinutes}:${formattedSeconds}.${formattedMilliseconds}`;
+    if (show_milliseconds)
+    {
+        return `${formattedMinutes}:${formattedSeconds}.${formattedMilliseconds}`;
+    }
+    else
+    {
+        return `${formattedMinutes}:${formattedSeconds}`;
+    }
+}
+
+function formatTimestamp(timestamp)
+{
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('en-US', { hour12: false }) + '.' + date.getMilliseconds().toString().padStart(3, '0');
 }
 
 // Funktion zum Rendern eines neuen Frames
@@ -153,5 +166,5 @@ function renderNewFrame(data)
     renderSimulationScene(rgbaArray, data.enabled);
 
     document.getElementById("animation_runtime_label").innerText = formatSecondsToMinutes(data.runtime);
-    document.getElementById("fps_label").innerText = (data.fps || 0) + " fps";
+    document.getElementById("last_refresh").innerText = formatTimestamp(data.last_refresh);
 }

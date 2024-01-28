@@ -96,12 +96,10 @@ app.get('/update', (req, res) =>
             console.error(`Update Fehler: ${error.message}`);
             return res.status(500).send('Update fehlgeschlagen');
         }
-        console.log('Update erfolgreich: ', stdout);
 
         // Antwort vor dem Beenden senden
-        res.send('Server wurde aktualisiert und wird direkt neu gestartet...');
+        res.send('Update erfolgreich. Server wird neu gestartet.');
 
-        console.log("Hallo");
         // Kurze Verzögerung, um sicherzustellen, dass die Antwort gesendet wird
         setTimeout(() =>
         {
@@ -152,8 +150,7 @@ function serveNewFrame(ws)
 
     const currentProgram = program.programHandler;
 
-    const fps = parseInt((currentProgram.frameIndex + 1) / (currentProgram.timestampCurrentFrame - currentProgram.timestampFirstFrame) * 1000);
-    const runtime = parseInt(currentProgram.timestampCurrentFrame - currentProgram.timestampFirstFrame);
+    const runtime = currentProgram.frameCount > 1 ? parseInt(currentProgram.timestampCurrentFrame - currentProgram.timestampFirstFrame) : 0;
 
     const frameCommand =
     {
@@ -163,8 +160,8 @@ function serveNewFrame(ws)
         width: config.animation.frameSize.width,
         height: config.animation.frameSize.height,
         brightness: currentProgram.brightness,
-        fps: fps,
         runtime: runtime,
+        last_refresh: new Date().getTime(),
     };
 
     if (toAllClients)

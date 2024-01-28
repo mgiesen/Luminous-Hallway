@@ -87,3 +87,7 @@ body {
 	align-items: center;
 	gap: 5px;
 }
+
+#settings > div > img {
+	height: 25px;
+}
