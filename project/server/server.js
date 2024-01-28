@@ -110,6 +110,13 @@ app.get('/update', (req, res) =>
     });
 });
 
+app.get('/kill', (req, res) =>
+{
+    console.log("Prozess wird beendet");
+
+    process.exit(0);
+});
+
 // Start the server
 const server = app.listen(port, () =>
 {
