@@ -24,6 +24,7 @@ class DriverConnector extends EventEmitter
         {
             const transformedMatrix = transformMatrix(frame, config.animation.frameSize.height, config.animation.frameSize.width, true, true);
 
+            console.log(`[UDP] Sending ${transformedMatrix.length} bytes to ${config.ledDriver.udp.ip}:${config.ledDriver.udp.port}`);
             this.udpClient.send(transformedMatrix, 0, transformedMatrix.length, config.ledDriver.udp.port, config.ledDriver.udp.ip);
         }
         catch (error)

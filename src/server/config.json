@@ -8,7 +8,7 @@
 	},
 	"ledDriver": {
 		"websocket": {
-			"ip": "192.168.178.74",
+			"ip": "192.168.178.213",
 			"port": 81
 		},
 		"serial": {
@@ -16,14 +16,8 @@
 			"baudrate": 115200
 		},
 		"udp": {
-			"ip": "192.168.178.74",
+			"ip": "192.168.178.213",
 			"port": 4210
 		}
-	},
-	"homekit": {
-		"pincode": "031-45-154",
-		"name": "LED-Decke",
-		"username": "FA:3C:ED:5A:1A:1A",
-		"port": 51827
 	}
 }

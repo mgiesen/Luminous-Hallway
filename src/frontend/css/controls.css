@@ -3,6 +3,7 @@
 	border-radius: 8px;
 	height: 90px;
 	min-width: 200px;
+	max-width: 400px;
 	margin: 0;
 	padding: 0;
 	background: linear-gradient(to right,

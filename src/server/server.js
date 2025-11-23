@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const cors = require('cors');
 
 const WebSocket = require('ws');
 
@@ -8,11 +9,13 @@ const config = require('./config.json');
 const processor = require('./processor');
 const program = require('./program');
 const driverConnector = require('./driverConnector');
-const HomeKitDevice = require('./HomeKitDevice');
 const animationStorage = require('./animationStorage');
 
 const app = express();
 const port = 80;
+
+// CORS - Allow requests from Live Server and other origins
+app.use(cors());
 
 // JSON Body Parser
 app.use(express.json());
@@ -305,13 +308,16 @@ wss.on('connection', function connection(ws)
     ws.on('message', function incoming(message)
     {
         const data = JSON.parse(message);
+        console.log('[WebSocket] Received command:', data.command);
 
         if (data.command == "setBrightness")
         {
+            console.log('[WebSocket] Setting brightness to:', data.value);
             program.programHandler.brightness = parseInt(data.value);
         }
         if (data.command == "togglePower")
         {
+            console.log('[WebSocket] Toggling power, new state:', !program.programHandler.enabled);
             program.programHandler.enabled = !program.programHandler.enabled;
         }
         if (data.command == "runAnimation")
@@ -384,30 +390,6 @@ driverConnector.on('ledDriverFeedback', (data) =>
 // =============================================================
 
 program.emitter.on('frameUpdate', serveNewFrame);
-
-// =============================================================
-// HomeKit Handler
-// =============================================================
-
-function handleOnSet(value)
-{
-    console.log('Licht ein/aus gesetzt:', value);
-    program.programHandler.enabled = value;
-}
-
-function handleBrightnessSet(value)
-{
-    console.log('Helligkeit gesetzt:', value);
-    program.programHandler.brightness = parseInt(value) / 100 * 255;
-}
-
-const HomeKitDeviceConfig = {
-    username: config.homekit.username,
-    pincode: config.homekit.pincode,
-    port: config.homekit.port,
-};
-
-const ledDecke = new HomeKitDevice("LED Decke", HomeKitDeviceConfig, handleOnSet, handleBrightnessSet);
 
 // =============================================================
 // Programm Start

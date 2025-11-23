@@ -12,13 +12,7 @@
 }
 
 #dropZone {
-    transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.02);
-}
-
-#dropZone:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 #dropZone.dragging {
@@ -40,14 +34,7 @@
     transform: scale(0.98);
 }
 
-/* Icon Animation */
-#dropZone i {
-    transition: transform 0.3s ease;
-}
-
-#dropZone:hover i {
-    transform: translateY(-5px);
-}
+/* Icon Animation - Removed excessive hover effects */
 
 /* Progress Bar */
 .progress {

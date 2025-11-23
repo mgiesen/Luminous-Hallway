@@ -117,8 +117,12 @@ class ProgramHandler
 
     animateFrame()
     {
-        if (!this._enabled) return;
+        if (!this._enabled) {
+            console.log('[animateFrame] Skipped: not enabled');
+            return;
+        }
 
+        console.log('[animateFrame] Sending frame, mode:', this.mode);
         driver.sendFrame(this.getNextFrame());
         emitter.emit('frameUpdate');
 

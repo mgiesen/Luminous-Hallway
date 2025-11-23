@@ -3,19 +3,18 @@
 <head>
     <title>Luminous Hallway</title>
 
-    <!-- Tailwind CSS + DaisyUI via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <!-- Tailwind CSS + DaisyUI (local) -->
+    <link rel="stylesheet" type="text/css" href="css/output.css">
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Font Awesome (local) -->
+    <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.min.css">
 
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="stylesheet" type="text/css" href="css/controls.css">
     <link rel="stylesheet" type="text/css" href="css/loader.css">
     <link rel="stylesheet" type="text/css" href="css/upload.css">
 
-    <script src="third/reconnecting-websocket.js" defer></script>
+    <script src="node_modules/reconnecting-websocket/dist/reconnecting-websocket-iife.min.js" defer></script>
 </head>
 <body>
     <div id="bodyLoader">
@@ -26,8 +25,6 @@
     <div id="main">
     
         <div id="btn_program_controls">
-
-            <div style="flex-grow: 5"></div>
 
             <input class="slider" id="led_brightness" style="flex-grow: 2;" type="range" min="5" max="255">
 
@@ -65,7 +62,12 @@
 
     <!-- Scene Editor Modal -->
     <dialog id="sceneEditorModal" class="modal modal-bottom sm:modal-middle">
-        <div class="modal-box max-w-5xl">
+        <div class="modal-box max-w-7xl">
+            <form method="dialog">
+                <button class="absolute right-6 top-6 opacity-60 hover:opacity-100 transition-opacity cursor-pointer focus:outline-none">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </form>
             <h3 class="font-bold text-2xl mb-6">Szene auswählen</h3>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -83,7 +85,11 @@
                                 <p class="text-lg font-medium">Dateien hierher ziehen</p>
                                 <p class="text-sm opacity-60">oder klicken zum Auswählen</p>
                             </div>
-                            <div class="badge badge-outline">JPG, PNG, MP4</div>
+                            <div class="flex gap-2">
+                                <div class="badge badge-outline">JPG</div>
+                                <div class="badge badge-outline">PNG</div>
+                                <div class="badge badge-outline">MP4</div>
+                            </div>
                         </div>
                     </div>
 
@@ -107,12 +113,6 @@
                     </div>
                 </div>
 
-            </div>
-
-            <div class="modal-action">
-                <form method="dialog">
-                    <button class="btn">Schließen</button>
-                </form>
             </div>
         </div>
         <form method="dialog" class="modal-backdrop">
@@ -172,6 +172,7 @@
         </form>
     </dialog>
 
+    <script src="js/config.js" defer></script>
     <script src="js/main.js" defer></script>
     <script src="js/rendering.js" defer></script>
     <script src="js/websocket.js" defer></script>

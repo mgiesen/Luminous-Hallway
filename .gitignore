@@ -1,10 +1,15 @@
+# Dependencies
+node_modules/
+
+# IDE & Editor
+.vscode/
+
+# OS
 .DS_Store
-node_modules
-package-lock.json
-program
-uploads
-secrets.h
-m_secrets.h
-prototype
-persist
-.vscode
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local

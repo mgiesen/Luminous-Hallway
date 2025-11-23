@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
         uploadProgress.classList.remove('hidden');
 
         // Upload
-        fetch('/upload', {
+        fetch(`${apiBaseUrl}/upload`, {
             method: 'POST',
             body: formData
         })
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==================================================
 
     function loadAnimations() {
-        fetch('/api/animations')
+        fetch(`${apiBaseUrl}/api/animations`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         animationsList.innerHTML = animations.map(animation => `
-            <div class="flex items-center gap-2 bg-base-300 hover:bg-base-100 rounded-lg p-3 cursor-pointer transition-all group" data-animation-id="${animation.id}">
+            <div class="flex items-center gap-2 bg-base-300 hover:bg-primary hover:bg-opacity-20 rounded-lg p-3 cursor-pointer transition-all group" data-animation-id="${animation.id}">
                 <div class="flex-1 animation-title" data-animation-id="${animation.id}">
                     <span class="font-medium">${escapeHtml(animation.title)}</span>
                 </div>
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Bestehende Animation bearbeiten
     function openAnimationEditor(animationId) {
         sceneEditorModal.close(); // Scene Editor schließen
-        fetch(`/api/animations/${animationId}`)
+        fetch(`${apiBaseUrl}/api/animations/${animationId}`)
             .then(response => response.json())
             .then(animation => {
                 currentEditingAnimation = animation;
@@ -236,8 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const url = currentEditingAnimation
-            ? `/api/animations/${currentEditingAnimation.id}`
-            : '/api/animations';
+            ? `${apiBaseUrl}/api/animations/${currentEditingAnimation.id}`
+            : `${apiBaseUrl}/api/animations`;
 
         const method = currentEditingAnimation ? 'PUT' : 'POST';
 
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        fetch(`/api/animations/${currentEditingAnimation.id}`, {
+        fetch(`${apiBaseUrl}/api/animations/${currentEditingAnimation.id}`, {
             method: 'DELETE'
         })
             .then(response => {

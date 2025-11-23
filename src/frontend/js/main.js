@@ -41,7 +41,7 @@ function uploadFile()
         const formData = new FormData();
         formData.append('file', file);
 
-        fetch(`http://${serverAddress}/upload`, {
+        fetch(`${apiBaseUrl}/upload`, {
             method: 'POST',
             body: formData
         }).then(response =>

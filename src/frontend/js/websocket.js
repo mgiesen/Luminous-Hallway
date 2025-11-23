@@ -1,7 +1,5 @@
-const debug = true;
-const serverAddress = debug ? `localhost:80` : `${window.location.host}`;
-
-window.ws = new ReconnectingWebSocket(`ws://${serverAddress}`);
+// Server configuration is loaded from config.js
+window.ws = new ReconnectingWebSocket(wsUrl);
 
 window.ws.binaryType = 'blob';
 
