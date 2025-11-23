@@ -1,4 +1,6 @@
-// Definition von SECRET_SSID, SECRET_PASS, SECRET_OTA_PASSWORD
+#include <Arduino.h>
+
+// Definition von SECRET_SSID, SECRET_PASS
 #include "m_secrets.h"
 
 // Handler Funktionen der Firmware
@@ -48,7 +50,6 @@ void setup()
   serialSetup();
   ledSetup();
   wifiSetup(SECRET_SSID, SECRET_PASS);
-  otaSetup("LED-Decke-OTA", SECRET_OTA_PASSWORD);
 
   Connector.setup();
 }
@@ -56,7 +57,6 @@ void setup()
 // Loop der MCU
 void loop()
 {
-  otaLoop();
   ledLoop();
 
   Connector.handle();

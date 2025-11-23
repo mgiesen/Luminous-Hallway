@@ -1,5 +1,4 @@
 #include <FastLED.h>    // https://github.com/FastLED/FastLED
-#include <ArduinoOTA.h> // https://github.com/arduino/arduinoOTA
 
 #define MCU_OPTION_ESP8266 1
 #define MCU_OPTION_ESP32 2
@@ -9,7 +8,7 @@
 
 #define LED_TYPE WS2811
 #define COLOR_ORDER GRB
-#define FPS 60
+#define FPS 40
 
 // Pin Setup und propritäre Bibiliotheken für den ESP 8266
 #if MCU == MCU_OPTION_ESP8266
@@ -99,8 +98,21 @@ void serialSetup()
 
 void wifiSetup(const char *ssid, const char *password)
 {
+    // Hostname setzen (MUSS VOR WiFi.begin() und WiFi.config()!)
+    WiFi.hostname(SECRET_HOSTNAME);
+
+    // Statische IP konfigurieren (BEVOR WiFi.begin())
+    if (!WiFi.config(STATIC_IP, GATEWAY, SUBNET, DNS_PRIMARY))
+    {
+        Serial.println("Fehler: Statische IP konnte nicht konfiguriert werden");
+    }
+
     WiFi.begin(ssid, password);
-    Serial.print("Verbinde mit WLAN.");
+    Serial.print("Verbinde mit WLAN (");
+    Serial.print(SECRET_HOSTNAME);
+    Serial.print(" @ ");
+    Serial.print(STATIC_IP);
+    Serial.print(")...");
 
     while (WiFi.status() != WL_CONNECTED)
     {
@@ -110,37 +122,15 @@ void wifiSetup(const char *ssid, const char *password)
 
     Serial.println();
     Serial.println("Erfolgreich mit WLAN verbunden");
+    Serial.print("Hostname: ");
+    Serial.println(WiFi.hostname());
     Serial.print("IP-Adresse: ");
     Serial.println(WiFi.localIP());
+    Serial.print("MAC-Adresse: ");
+    Serial.println(WiFi.macAddress());
     Serial.println();
 }
 
-void otaSetup(const char *hostname, const char *password)
-{
-    ArduinoOTA.onStart([]()
-                       { Serial.println("OTA Start"); });
-    ArduinoOTA.onEnd([]()
-                     { Serial.println("\nOTA Ende"); });
-    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total)
-                          { Serial.printf("OTA Progress: %u%%\r", (progress / (total / 100))); });
-    ArduinoOTA.onError([](ota_error_t error)
-                       {
-    Serial.printf("OTA Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) Serial.println("OTA Auth Failed");
-    else if (error == OTA_BEGIN_ERROR) Serial.println("OTA Begin Failed");
-    else if (error == OTA_CONNECT_ERROR) Serial.println("OTA Connect Failed");
-    else if (error == OTA_RECEIVE_ERROR) Serial.println("OTA Receive Failed");
-    else if (error == OTA_END_ERROR) Serial.println("OTA End Failed"); });
-
-    ArduinoOTA.setHostname(hostname);
-    ArduinoOTA.setPassword(password);
-    ArduinoOTA.begin();
-}
-
-void otaLoop()
-{
-    ArduinoOTA.handle();
-}
 
 #if CONNECTION == UDP
 #include "o_udpConnection.h"
