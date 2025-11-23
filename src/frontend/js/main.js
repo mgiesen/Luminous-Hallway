@@ -65,37 +65,9 @@ function uploadFile()
     fileInput.remove();
 }
 
-// Event-Listener für den Update-Button
-document.getElementById('updateBtn').addEventListener('click', function ()
-{
-    fetch(`/update`, {
-        method: 'GET'
-    }).then(response =>
-    {
-        if (response.status === 200)
-        {
-            response.text().then(data =>
-            {
-                alert("Update erfolgreich. Server wird neu gestartet.");
-
-                window.location.reload();
-            });
-        } else
-        {
-            alert("Update fehlgeschlagen");
-        }
-    }).catch(error => console.error('Fehler:', error));
-});
-
-// Event-Listener für den Upload-Button
-document.getElementById('uploadButton').addEventListener('click', function ()
-{
-    uploadFile();
-});
-
 // Event-Listener für den Helligkeitsregler
 const ledBrightness = document.getElementById('led_brightness');
-let ledBrightnessTrackbarIsBeingUsed = false;
+window.ledBrightnessTrackbarIsBeingUsed = false;
 
 led_brightness.addEventListener('input', function ()
 {
@@ -104,17 +76,38 @@ led_brightness.addEventListener('input', function ()
 
 led_brightness.addEventListener('mousedown', () =>
 {
-    ledBrightnessTrackbarIsBeingUsed = true;
+    window.ledBrightnessTrackbarIsBeingUsed = true;
 });
 
 led_brightness.addEventListener('mouseup', () =>
 {
-    ledBrightnessTrackbarIsBeingUsed = false;
+    window.ledBrightnessTrackbarIsBeingUsed = false;
 });
 
 document.getElementById('powerButton').addEventListener('click', function ()
 {
     sendValueOverWebSocket(false, 'togglePower');
+});
+
+// Slider Progress-Effekt
+function updateSliderProgress(slider) {
+    const value = slider.value;
+    const min = slider.min || 0;
+    const max = slider.max || 100;
+    const percentage = ((value - min) / (max - min)) * 100;
+
+    slider.style.background = `linear-gradient(to right,
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(255, 255, 255, 0.5) ${percentage}%,
+        rgba(255, 255, 255, 0.15) ${percentage}%,
+        rgba(255, 255, 255, 0.15) 100%)`;
+}
+
+const brightnessSlider = document.getElementById('led_brightness');
+updateSliderProgress(brightnessSlider);
+
+brightnessSlider.addEventListener('input', function() {
+    updateSliderProgress(this);
 });
 
 

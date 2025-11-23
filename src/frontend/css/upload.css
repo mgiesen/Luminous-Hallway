@@ -1,0 +1,95 @@
+/* Scene Editor Modal Styling */
+
+#sceneEditorModal .modal-box,
+#animationEditorModal .modal-box {
+    background: linear-gradient(135deg, rgba(30, 30, 40, 0.95) 0%, rgba(20, 20, 30, 0.95) 100%);
+    backdrop-filter: blur(10px);
+}
+
+/* Gleiche Höhe für beide Panels */
+#sceneEditorModal .grid > div {
+    min-height: 400px;
+}
+
+#dropZone {
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+#dropZone:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+#dropZone.dragging {
+    border-color: hsl(var(--p));
+    background: rgba(255, 255, 255, 0.05);
+    transform: scale(1.02);
+}
+
+/* Animation Liste Styling */
+#animationsList > div {
+    transition: all 0.2s ease;
+}
+
+#animationsList > div:hover {
+    transform: translateX(2px);
+}
+
+#animationsList > div:active {
+    transform: scale(0.98);
+}
+
+/* Icon Animation */
+#dropZone i {
+    transition: transform 0.3s ease;
+}
+
+#dropZone:hover i {
+    transform: translateY(-5px);
+}
+
+/* Progress Bar */
+.progress {
+    height: 8px;
+}
+
+/* Smooth Scrollbar */
+#animationsList {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+#animationsList::-webkit-scrollbar {
+    width: 6px;
+}
+
+#animationsList::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#animationsList::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+#animationsList::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Code Editor Styling */
+#animationCodeInput {
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 1.5;
+    tab-size: 2;
+}
+
+/* Editor Buttons */
+.edit-animation-btn {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+#animationsList > div:hover .edit-animation-btn {
+    opacity: 1;
+}

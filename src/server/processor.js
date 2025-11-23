@@ -15,7 +15,7 @@ function clearFolder(folderPath)
     });
 }
 
-async function processImage(filePath, frameSize, fileExtname)
+async function processImage(filePath, frameSize, fileExtname, mimeType)
 {
     // Bild übernehmen
     const image = sharp(filePath);
@@ -30,10 +30,10 @@ async function processImage(filePath, frameSize, fileExtname)
     await image.toFile(`./program/image${fileExtname}`);
 
     // Bild in program.m laden
-    await program.load();
+    await program.load(mimeType);
 }
 
-async function processVideo(filePath, frameSize) 
+async function processVideo(filePath, frameSize, mimeType)
 {
     // program ordner leeren
     clearFolder('./program');
@@ -67,20 +67,20 @@ async function processVideo(filePath, frameSize)
     });
 
     // Bilder in program laden
-    await program.load();
+    await program.load(mimeType);
 }
 
 async function processUpload(filePath, frameSize, mimeType, fileExtname)
 {
-    program.enabled = false;
+    program.programHandler.enabled = false;
 
     if (mimeType.startsWith('image/'))
     {
-        await processImage(filePath, frameSize, fileExtname);
+        await processImage(filePath, frameSize, fileExtname, mimeType);
     }
-    else if (mimeType === 'video/mp4')
+    else if (mimeType.startsWith('video/'))
     {
-        await processVideo(filePath, frameSize);
+        await processVideo(filePath, frameSize, mimeType);
     }
 }
 

@@ -8,6 +8,7 @@ const sharp = require('sharp');
 
 const config = require('./config.json');
 const driver = require('./driverConnector');
+const { AnimationRunner } = require('./animationRunner');
 
 class ProgramHandler
 {
@@ -18,10 +19,14 @@ class ProgramHandler
         this.rawArrayRGB = [];
         this.frameIndex = 0;
         this.frameCount = 0;
+        this.outputType = 'image';  // 'image', 'video', oder 'animation'
         this.timestampFirstFrame = null;
         this.timestampPrevFrame = null;
         this.timestampCurrentFrame = null;
         this.animationTimeout = null;  // Timeout-Handler
+        this.mode = 'file';  // 'file' oder 'code'
+        this.animationRunner = new AnimationRunner();  // Code-Animation Runner
+        this.currentAnimationId = null;  // ID der aktuellen Code-Animation
     }
 
     clear()
@@ -36,9 +41,12 @@ class ProgramHandler
         this.rawArrayRGB = [];
         this.frameIndex = 0;
         this.frameCount = 0;
+        this.outputType = 'image';
         this.timestampFirstFrame = null;
         this.timestampPrevFrame = null;
         this.timestampCurrentFrame = null;
+        this.mode = 'file';
+        this.currentAnimationId = null;
     }
 
     get enabled()
@@ -79,6 +87,22 @@ class ProgramHandler
         this.timestampPrevFrame = this.timestampCurrentFrame;
         this.timestampCurrentFrame = Date.now();
 
+        // Code-Animation Modus
+        if (this.mode === 'code')
+        {
+            if (this.animationRunner.isLoaded())
+            {
+                return this.animationRunner.generateFrame();
+            }
+            else
+            {
+                // Fallback: schwarzer Frame
+                const frameSize = config.animation.frameSize.width * config.animation.frameSize.height * 3;
+                return new Uint8Array(frameSize);
+            }
+        }
+
+        // File-Animation Modus (bestehend)
         if (this.frameIndex < this.frameCount - 1)
         {
             this.frameIndex++;
@@ -128,7 +152,7 @@ class ProgramHandler
 
 let programHandler = new ProgramHandler();
 
-async function load()
+async function load(mimeType = 'image/jpeg')
 {
     // Überprüfen, ob der Ordner existiert. Wenn nicht, erstellen
     const dir = './program';
@@ -169,11 +193,64 @@ async function load()
 
     programHandler.rawArrayRGB = ImageBuffer;
     programHandler.frameCount = ImageBuffer.length;
+
+    // OutputType basierend auf frameCount und mimeType bestimmen
+    if (ImageBuffer.length === 1)
+    {
+        programHandler.outputType = 'image';
+    }
+    else if (mimeType.startsWith('video/'))
+    {
+        programHandler.outputType = 'video';
+    }
+    else
+    {
+        programHandler.outputType = 'animation';
+    }
+
     programHandler.enabled = true;
 };
 
+/**
+ * Code-Animation laden
+ * @param {string} animationId - ID der Animation
+ * @param {string} code - Animation-Code
+ */
+async function loadCodeAnimation(animationId, code)
+{
+    console.log('[loadCodeAnimation] Starte Animation:', animationId);
+
+    try {
+        // Aktives Programm stoppen
+        programHandler.clear();
+
+        // ROBUSTNESS: Animation-Runner mit Code laden (kann fehlschlagen!)
+        programHandler.animationRunner.load(code);
+        programHandler.mode = 'code';
+        programHandler.outputType = 'animation';
+        programHandler.currentAnimationId = animationId;
+
+        console.log('[loadCodeAnimation] Mode:', programHandler.mode, 'OutputType:', programHandler.outputType);
+
+        // Animation starten
+        programHandler.enabled = true;
+
+        console.log('[loadCodeAnimation] Enabled:', programHandler.enabled);
+    } catch (error) {
+        console.error('[loadCodeAnimation] Fehler beim Laden der Animation:', error);
+
+        // ROBUSTNESS: Cleanup bei Fehler
+        programHandler.resetValues();
+        programHandler.enabled = false;
+
+        // Error weiterwerfen für Caller
+        throw new Error(`Konnte Animation nicht laden: ${error.message}`);
+    }
+}
+
 module.exports = {
     load,
+    loadCodeAnimation,
     programHandler,
     emitter
 };

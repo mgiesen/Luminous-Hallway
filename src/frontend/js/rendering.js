@@ -108,34 +108,6 @@ function renderSimulationScene(rgbaArray, enabled)
     }
 }
 
-// Funktion zum Konvertieren von Millisekunden in Minuten und Sekunden
-function formatSecondsToMinutes(millis, show_milliseconds = false)
-{
-    if (millis == null) return "00:00.000";
-    const seconds = millis / 1000;
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    const milliseconds = Math.floor(millis % 1000);
-    const formattedMinutes = String(Math.round(minutes)).padStart(2, '0');
-    const formattedSeconds = String(remainingSeconds).padStart(2, '0');
-    const formattedMilliseconds = String(milliseconds).padStart(3, '0');
-
-    if (show_milliseconds)
-    {
-        return `${formattedMinutes}:${formattedSeconds}.${formattedMilliseconds}`;
-    }
-    else
-    {
-        return `${formattedMinutes}:${formattedSeconds}`;
-    }
-}
-
-function formatTimestamp(timestamp)
-{
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', { hour12: false }) + '.' + date.getMilliseconds().toString().padStart(3, '0');
-}
-
 // Funktion zum Rendern eines neuen Frames
 function renderNewFrame(data)
 {
@@ -158,13 +130,30 @@ function renderNewFrame(data)
 
     let brightnessTrackbar = document.getElementById("led_brightness");
 
-    if (brightnessTrackbar.value != data.brightness && !ledBrightnessTrackbarIsBeingUsed)
+    if (brightnessTrackbar.value != data.brightness && !window.ledBrightnessTrackbarIsBeingUsed)
     {
         brightnessTrackbar.value = data.brightness;
+        updateSliderProgress(brightnessTrackbar);
     }
 
-    renderSimulationScene(rgbaArray, data.enabled);
+    // Output-Type Icon aktualisieren
+    updateOutputTypeIcon(data.outputType);
 
-    document.getElementById("animation_runtime_label").innerText = formatSecondsToMinutes(data.runtime);
-    document.getElementById("last_refresh").innerText = formatTimestamp(data.last_refresh);
+    renderSimulationScene(rgbaArray, data.enabled);
+}
+
+// Funktion zum Aktualisieren des Output-Type Icons
+function updateOutputTypeIcon(outputType)
+{
+    const iconElement = document.getElementById('output-type-icon');
+    const iconMap = {
+        'image': 'fa-solid fa-image',
+        'video': 'fa-solid fa-video',
+        'animation': 'fa-solid fa-wand-magic-sparkles'
+    };
+
+    if (iconMap[outputType])
+    {
+        iconElement.className = iconMap[outputType];
+    }
 }

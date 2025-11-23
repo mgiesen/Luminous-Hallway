@@ -1,6 +1,5 @@
 const express = require('express');
 const multer = require('multer');
-const { exec } = require('child_process');
 const path = require('path');
 
 const WebSocket = require('ws');
@@ -10,13 +9,13 @@ const processor = require('./processor');
 const program = require('./program');
 const driverConnector = require('./driverConnector');
 const HomeKitDevice = require('./HomeKitDevice');
+const animationStorage = require('./animationStorage');
 
 const app = express();
 const port = 80;
 
-// =============================================================
-// Webserver für Frontend
-// =============================================================
+// JSON Body Parser
+app.use(express.json());
 
 // Upload Filter
 const fileFilter = (req, file, cb) =>
@@ -42,9 +41,6 @@ const upload = multer({
     dest: 'uploads/',
     fileFilter: fileFilter
 });
-
-// Serve Frontend
-app.use(express.static("./frontend", { index: 'index.html' }));
 
 function uploadErrorHandler(err, req, res, next) 
 {
@@ -84,38 +80,116 @@ app.post('/upload', upload.single('file'), uploadErrorHandler, async (req, res) 
     return res.status(200).send('Datei wurde erfolgreich verarbeitet');
 });
 
-app.get('/update', (req, res) =>
-{
-    console.log("Update wurde angefordert");
-
-    // Führe git pull im Root-Verzeichnis des Projekts aus
-    exec('git pull', { cwd: path.join(__dirname, '..', '..') }, (error, stdout, stderr) =>
-    {
-        if (error)
-        {
-            console.error(`Update Fehler: ${error.message}`);
-            return res.status(500).send('Update fehlgeschlagen');
-        }
-
-        // Antwort vor dem Beenden senden
-        res.send('Update erfolgreich. Server wird neu gestartet.');
-
-        // Kurze Verzögerung, um sicherzustellen, dass die Antwort gesendet wird
-        setTimeout(() =>
-        {
-            console.log('Server wird beendet. PM2 wird den Neustart durchführen.');
-            process.exit(0);
-        }, 1000);
-
-    });
-});
-
 app.get('/kill', (req, res) =>
 {
     console.log("Prozess wird beendet");
 
     process.exit(0);
 });
+
+// =============================================================
+// Animation API Endpunkte
+// =============================================================
+
+// Alle Animationen auflisten (nur Metadaten)
+app.get('/api/animations', (req, res) =>
+{
+    try
+    {
+        const animations = animationStorage.listAnimations();
+        res.json(animations);
+    }
+    catch (error)
+    {
+        console.error('Fehler beim Auflisten der Animationen:', error);
+        res.status(500).json({ error: 'Fehler beim Auflisten der Animationen' });
+    }
+});
+
+// Einzelne Animation abrufen (mit Code)
+app.get('/api/animations/:id', (req, res) =>
+{
+    try
+    {
+        const animation = animationStorage.getAnimation(req.params.id);
+        res.json(animation);
+    }
+    catch (error)
+    {
+        console.error('Fehler beim Abrufen der Animation:', error);
+        res.status(404).json({ error: error.message });
+    }
+});
+
+// Neue Animation erstellen
+app.post('/api/animations', (req, res) =>
+{
+    try
+    {
+        const { title, code } = req.body;
+
+        if (!title || !code)
+        {
+            return res.status(400).json({ error: 'Titel und Code sind erforderlich' });
+        }
+
+        const animation = animationStorage.createAnimation(title, code);
+        res.status(201).json(animation);
+    }
+    catch (error)
+    {
+        console.error('Fehler beim Erstellen der Animation:', error);
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// Animation aktualisieren
+app.put('/api/animations/:id', (req, res) =>
+{
+    try
+    {
+        const { title, code } = req.body;
+
+        if (!title || !code)
+        {
+            return res.status(400).json({ error: 'Titel und Code sind erforderlich' });
+        }
+
+        const animation = animationStorage.updateAnimation(req.params.id, title, code);
+        res.json(animation);
+    }
+    catch (error)
+    {
+        console.error('Fehler beim Aktualisieren der Animation:', error);
+        res.status(404).json({ error: error.message });
+    }
+});
+
+// Animation löschen
+app.delete('/api/animations/:id', (req, res) =>
+{
+    try
+    {
+        // Nicht die aktuell laufende Animation löschen
+        if (program.programHandler.currentAnimationId === req.params.id)
+        {
+            return res.status(409).json({ error: 'Kann laufende Animation nicht löschen. Bitte zuerst stoppen.' });
+        }
+
+        animationStorage.deleteAnimation(req.params.id);
+        res.json({ success: true });
+    }
+    catch (error)
+    {
+        console.error('Fehler beim Löschen der Animation:', error);
+        res.status(404).json({ error: error.message });
+    }
+});
+
+// =============================================================
+// Serve Frontend (NACH API-Routen!)
+// =============================================================
+app.use(express.static("../frontend", { index: 'index.html' }));
 
 // Start the server
 const server = app.listen(port, () =>
@@ -132,7 +206,6 @@ const wss = new WebSocket.Server({ server });
 const state = {
     command: 'updateStatus',
     uploadInProgress: false,
-    driverConnected: false,
 };
 
 function sendStateUpdate()
@@ -146,29 +219,66 @@ function sendStateUpdate()
     });
 }
 
-function serveNewFrame(ws) 
+function serveNewFrame(ws)
 {
     const toAllClients = Boolean(ws == undefined);
 
-    if (program.programHandler.rawArrayRGB.length == 0)
-    {
-        return;
-    }
-
     const currentProgram = program.programHandler;
 
-    const runtime = currentProgram.frameCount > 1 ? parseInt(currentProgram.timestampCurrentFrame - currentProgram.timestampFirstFrame) : 0;
+    // Default-Frame erstellen wenn keine Animation geladen ist
+    let frameData;
+    let enabled = false;
+    let runtime = 0;
+    let brightness = 128;
+
+    // Code-Animation: Frame vom AnimationRunner holen
+    if (currentProgram.mode === 'code' && currentProgram.animationRunner.isLoaded())
+    {
+        try
+        {
+            // ROBUSTNESS: generateFrame() kann werfen!
+            frameData = Array.from(currentProgram.animationRunner.generateFrame());
+            enabled = currentProgram.enabled;
+            runtime = parseInt(Date.now() - currentProgram.timestampFirstFrame);
+            brightness = currentProgram.brightness;
+        }
+        catch (error)
+        {
+            console.error('Fehler bei Frame-Generierung:', error.message);
+            // Fallback: Schwarzer Frame
+            const width = config.animation.frameSize.width;
+            const height = config.animation.frameSize.height;
+            const frameSize = width * height * 3;
+            frameData = new Array(frameSize).fill(0);
+        }
+    }
+    // File-Animation: Frame aus rawArrayRGB holen
+    else if (currentProgram.rawArrayRGB.length > 0)
+    {
+        frameData = Array.from(currentProgram.rawArrayRGB[currentProgram.frameIndex]);
+        enabled = currentProgram.enabled;
+        runtime = currentProgram.frameCount > 1 ? parseInt(currentProgram.timestampCurrentFrame - currentProgram.timestampFirstFrame) : 0;
+        brightness = currentProgram.brightness;
+    }
+    // Fallback: Schwarzer Frame
+    else
+    {
+        const width = config.animation.frameSize.width;
+        const height = config.animation.frameSize.height;
+        const frameSize = width * height * 3; // RGB
+        frameData = new Array(frameSize).fill(0); // Alle LEDs schwarz (aus)
+    }
 
     const frameCommand =
     {
         command: 'updateFrame',
-        enabled: currentProgram.enabled,
-        frame: Array.from(currentProgram.rawArrayRGB[currentProgram.frameIndex]),
+        enabled: enabled,
+        frame: frameData,
         width: config.animation.frameSize.width,
         height: config.animation.frameSize.height,
-        brightness: currentProgram.brightness,
+        brightness: brightness,
         runtime: runtime,
-        last_refresh: new Date().getTime(),
+        outputType: currentProgram.outputType,
     };
 
     if (toAllClients)
@@ -204,6 +314,30 @@ wss.on('connection', function connection(ws)
         {
             program.programHandler.enabled = !program.programHandler.enabled;
         }
+        if (data.command == "runAnimation")
+        {
+            // SECURITY: Input Validation
+            if (!data.animationId || typeof data.animationId !== 'string')
+            {
+                console.error('WebSocket: Ungültige animationId');
+                return;
+            }
+
+            // Code-Animation starten
+            const animationId = data.animationId;
+
+            try
+            {
+                const animation = animationStorage.getAnimation(animationId);
+                program.loadCodeAnimation(animationId, animation.code);
+                console.log(`Code-Animation gestartet: ${animation.title}`);
+            }
+            catch (error)
+            {
+                console.error('Fehler beim Starten der Animation:', error.message);
+                // TODO: Send error feedback to client via WebSocket
+            }
+        }
     });
 
     ws.on('close', function ()
@@ -228,22 +362,16 @@ const driverLabel = "[LED TREIBER]";
 driverConnector.on('ledDriverConnected', () =>
 {
     console.log(`${driverLabel} Erfolgreich verbunden`);
-    state.driverConnected = true;
-    sendStateUpdate();
 });
 
 driverConnector.on('ledDriverProblem', () =>
 {
     console.error(`${driverLabel} WebSocket Fehler`);
-    state.driverConnected = false;
-    sendStateUpdate();
 });
 
 driverConnector.on('ledDriverDisconnected', () =>
 {
     console.log(`${driverLabel} Verbindung getrennt`);
-    state.driverConnected = false;
-    sendStateUpdate();
 });
 
 driverConnector.on('ledDriverFeedback', (data) =>

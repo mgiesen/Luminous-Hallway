@@ -1,16 +1,16 @@
-const debug = false;
-const serverAddress = debug ? `localhost` : `${window.location.host}`;
+const debug = true;
+const serverAddress = debug ? `localhost:80` : `${window.location.host}`;
 
-let ws = new ReconnectingWebSocket(`ws://${serverAddress}`);
+window.ws = new ReconnectingWebSocket(`ws://${serverAddress}`);
 
-ws.binaryType = 'blob';
+window.ws.binaryType = 'blob';
 
-ws.addEventListener('open', function ()
+window.ws.addEventListener('open', function ()
 {
     // Logik für die Behandlung der Öffnung der Verbindung
 });
 
-ws.addEventListener('message', function (event)
+window.ws.addEventListener('message', function (event)
 {
     const data = JSON.parse(event.data);
     if (data.command == 'updateFrame')
@@ -23,12 +23,12 @@ ws.addEventListener('message', function (event)
     }
 });
 
-ws.addEventListener('error', function (error)
+window.ws.addEventListener('error', function (error)
 {
     showLoader("Verbindung zum Server verloren. Versuche erneut zu verbinden...");
 });
 
-ws.addEventListener('close', function (event)
+window.ws.addEventListener('close', function (event)
 {
     showLoader("Verbindung zum Server verloren. Versuche erneut zu verbinden...");
 });
@@ -74,7 +74,7 @@ const throttledRenderNewFrame = throttle(renderNewFrame, 1000 / 24);
 // Wert über Websocket senden
 function sendValueOverWebSocket(value, command)
 {
-    if (!ws || ws.readyState !== WebSocket.OPEN)
+    if (!window.ws || window.ws.readyState !== WebSocket.OPEN)
     {
         return;
     }
@@ -83,7 +83,7 @@ function sendValueOverWebSocket(value, command)
         command: command,
         value: value
     };
-    ws.send(JSON.stringify(data));
+    window.ws.send(JSON.stringify(data));
 }
 
 //==============================================================================
@@ -93,8 +93,6 @@ function sendValueOverWebSocket(value, command)
 // Funktion zum Aktualisieren des Systemstatus
 function updateState(data)
 {
-    document.getElementById("driver_connected_label").innerText = data.driverConnected ? "Verbunden" : "Getrennt";
-
     if (data.uploadInProgress)
     {
         showLoader("Upload wird durchgeführt");

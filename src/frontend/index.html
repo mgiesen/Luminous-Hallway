@@ -1,11 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="dark">
 <head>
     <title>Luminous Hallway</title>
+
+    <!-- Tailwind CSS + DaisyUI via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="stylesheet" type="text/css" href="css/controls.css">
     <link rel="stylesheet" type="text/css" href="css/loader.css">
+    <link rel="stylesheet" type="text/css" href="css/upload.css">
 
     <script src="third/reconnecting-websocket.js" defer></script>
 </head>
@@ -22,11 +30,13 @@
             <div style="flex-grow: 5"></div>
 
             <input class="slider" id="led_brightness" style="flex-grow: 2;" type="range" min="5" max="255">
-            
-            <canvas id="frame"></canvas>
 
-            <div class="button" id="uploadButton" title="Neue Scene hochladen">
-                <img src="images/icons/upload.svg">
+            <div id="frame-container" title="Szene bearbeiten">
+                <canvas id="frame"></canvas>
+                <div id="output-type-overlay">
+                    <i id="output-type-icon" class=""></i>
+                    <i id="output-type-icon-hover" class="fa-solid fa-paintbrush"></i>
+                </div>
             </div>
 
             <div class="button" style="display: none" id="settingsButton" title="Einstellungen">
@@ -34,47 +44,138 @@
             </div>
 
             <div class="button" id="powerButton" title="Einstellungen">
-                <img src="images/icons/power.svg">
+                <i class="fa-solid fa-power-off"></i>
             </div>
 
         </div>
     
         <div id="room">
-            <div id="simulationBackground"></div>
             <canvas id="simulation"></canvas>
         </div>
 
-        <div id="settings" height="35px">
-          
-            <div class="disabled">
-                <img src="images/icons/connection.svg">
-                <span id="driver_connected_label">Warte...</span>
-            </div>
-
-            <div id="updateBtn" style="cursor: pointer;">
-                <img src="images/icons/github-mark-white.png" style="height: 20px">
-                <span>Update</span>
-            </div>
-
-            <div class="disabled">
-                <img src="images/icons/animation.svg">
-                <span id="animation_runtime_label">00:00</span>
-            </div>
-
-            <div class="disabled">
-                <img src="images/icons/performance.svg">
-                <span id="last_refresh">0 fps</span>
-            </div>
+        <div id="settings" class="flex items-center gap-4 justify-end px-4 py-2">
 
         </div>
     </div>
-    <div style="display: flex; justify-content: center; opacity: 0.3">
-        <span>© Maximilian Giesen</span>
+    <div class="flex justify-center opacity-30">
+        <a href="https://github.com/mgiesen/Luminous-Hallway" target="_blank" rel="noopener noreferrer" class="hover:opacity-100 transition-opacity">
+            © 2025 Maximilian Giesen
+        </a>
     </div>
+
+    <!-- Scene Editor Modal -->
+    <dialog id="sceneEditorModal" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box max-w-5xl">
+            <h3 class="font-bold text-2xl mb-6">Szene auswählen</h3>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+                <!-- Medien-Upload Panel -->
+                <div class="bg-base-100 border border-base-300 rounded-lg p-6 flex flex-col h-[500px]">
+                    <h4 class="text-lg font-semibold mb-4">Szene aus Bild oder Video erstellen</h4>
+
+                    <div id="dropZone" class="flex-1 flex items-center justify-center border-2 border-dashed border-base-300 rounded-lg cursor-pointer hover:border-primary hover:bg-base-300 transition-all duration-300">
+                        <input type="file" id="fileInput" accept="image/*,video/*" class="hidden">
+
+                        <div class="flex flex-col items-center gap-4 p-8 text-center">
+                            <i class="fa-solid fa-cloud-arrow-up text-6xl opacity-40"></i>
+                            <div>
+                                <p class="text-lg font-medium">Dateien hierher ziehen</p>
+                                <p class="text-sm opacity-60">oder klicken zum Auswählen</p>
+                            </div>
+                            <div class="badge badge-outline">JPG, PNG, MP4</div>
+                        </div>
+                    </div>
+
+                    <div id="uploadProgress" class="hidden mt-4">
+                        <progress class="progress progress-primary w-full"></progress>
+                        <p class="text-sm text-center mt-2 opacity-60">Wird hochgeladen...</p>
+                    </div>
+                </div>
+
+                <!-- Animationen Panel -->
+                <div class="bg-base-100 border border-base-300 rounded-lg p-6 flex flex-col h-[500px]">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-lg font-semibold">Szene aus Animation erstellen</h4>
+                        <button id="addAnimationBtn" class="btn btn-sm btn-primary" title="Neue Animation">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+
+                    <div id="animationsList" class="flex-1 overflow-y-auto space-y-2">
+                        <!-- Wird dynamisch gefüllt -->
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-action">
+                <form method="dialog">
+                    <button class="btn">Schließen</button>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <!-- Animation Editor Modal -->
+    <dialog id="animationEditorModal" class="modal">
+        <div class="modal-box max-w-4xl">
+            <button id="closeEditorBtn" class="absolute right-6 top-6 opacity-60 hover:opacity-100 transition-opacity cursor-pointer focus:outline-none">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+            <h3 class="font-bold text-2xl mb-6" id="editorTitle">Animation bearbeiten</h3>
+
+            <div class="space-y-4">
+                <!-- Titel Input -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Titel (optional mit Emoji)</span>
+                    </label>
+                    <input type="text" id="animationTitleInput" placeholder="z.B. 🔥 Feuer" class="input input-bordered w-full">
+                </div>
+
+                <!-- Code Editor -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Animation-Code</span>
+                        <span class="label-text-alt opacity-60">function(frame, time)</span>
+                    </label>
+                    <textarea id="animationCodeInput" class="textarea textarea-bordered font-mono text-sm h-96" placeholder="function(frame, time) {
+  // Beispiel: Alle LEDs rot färben
+  frame.fill({ r: 255, g: 0, b: 0 });
+
+  // Einzelnes Pixel setzen
+  // frame.setPixel(x, y, { r: 255, g: 0, b: 0 });
+}"></textarea>
+                    <label class="label">
+                        <span class="label-text-alt opacity-60">frame.setPixel(x, y, color) | frame.fill(color) | frame.clear()</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-action">
+                <button id="deleteAnimationBtn" class="btn btn-error btn-outline" style="display: none;">
+                    <i class="fa-solid fa-trash"></i>
+                    Löschen
+                </button>
+                <button id="saveAnimationBtn" class="btn btn-primary">
+                    <i class="fa-solid fa-save"></i>
+                    Speichern
+                </button>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button id="editorBackdrop">close</button>
+        </form>
+    </dialog>
 
     <script src="js/main.js" defer></script>
     <script src="js/rendering.js" defer></script>
     <script src="js/websocket.js" defer></script>
+    <script src="js/sceneEditor.js" defer></script>
 </body>
 </html>
            
